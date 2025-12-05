@@ -1,16 +1,24 @@
-# Use Laravel image
-FROM ghcr.io/shinsenter/laravel:php8.2-nginx
+FROM wyveo/nginx-php-fpm:php82
 
-# Set working directory
-WORKDIR /var/www/html
+# Work directory
+WORKDIR /usr/share/nginx/html
 
-# Copy application files
+# Copy Laravel app
 COPY . .
 
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
 # Install PHP dependencies
-RUN composer install --no-dev --no-interaction --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Set proper permissions for Laravel
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+# Install Node & build assets
+RUN apt-get update && apt-get install -y npm && rm -rf /var/lib/apt/lists/* \
+ && [ -f package.json ] && npm install && npm run build || true
 
-# CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+# OpenShift permissions
+RUN mkdir -p storage bootstrap/cache \
+ && chmod -R ug+rwX storage bootstrap/cache
+
+# Expose nginx port
+EXPOSE 8080
