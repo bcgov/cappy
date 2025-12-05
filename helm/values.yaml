@@ -15,10 +15,10 @@ resources:
     cpu: "1"
     memory: "2Gi"
 
-# pvc:
-#   storage: "100Mi"
-#   formData:
-#     storage: "100Mi"
+pvc:
+  storage: "64Mi"
+  formData:
+    storage: "64Mi"
 
 db:
   host: "postgres"
