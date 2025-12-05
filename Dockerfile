@@ -11,6 +11,7 @@ RUN apk add --no-cache \
     oniguruma-dev \
     postgresql-dev \
     icu-dev \
+    bash \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) \
         pdo_mysql \
@@ -27,10 +28,19 @@ RUN apk add --no-cache \
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Create application directory and set permissions for OpenShift
-RUN mkdir -p /app /var/run/nginx /var/log/nginx /var/lib/nginx/tmp \
-    && chown -R 1001:0 /app /var/run /var/log/nginx /var/lib/nginx \
-    && chmod -R g+rwX /app /var/run /var/log/nginx /var/lib/nginx
+# Create necessary directories with proper permissions for OpenShift random UID
+# OpenShift runs containers with random UID but GID 0 (root group)
+RUN mkdir -p /app \
+    /var/run/nginx \
+    /var/log/nginx \
+    /var/lib/nginx/tmp \
+    /var/lib/nginx/logs \
+    /tmp/sessions \
+    /tmp/nginx-cache \
+    && chmod -R g+rwX /var/run /var/log /var/lib/nginx /tmp \
+    && chgrp -R 0 /var/run /var/log /var/lib/nginx /tmp \
+    && chmod -R g+rwX /app \
+    && chgrp -R 0 /app
 
 WORKDIR /app
 
@@ -44,14 +54,16 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction
 RUN mkdir -p storage/framework/{sessions,views,cache} \
     storage/logs \
     bootstrap/cache \
-    && chown -R 1001:0 storage bootstrap/cache \
-    && chmod -R g+rwX storage bootstrap/cache
+    && chmod -R g+rwX storage bootstrap/cache \
+    && chgrp -R 0 storage bootstrap/cache
 
-# Configure Nginx for non-root
-RUN echo 'pid /tmp/nginx.pid;' > /etc/nginx/nginx.conf \
-    && cat >> /etc/nginx/nginx.conf <<'EOF'
+# Configure Nginx for non-root with group permissions
+RUN cat > /etc/nginx/nginx.conf <<'EOF'
+# Run nginx as user 1001, group 0 (OpenShift compatible)
+# OpenShift will override the user with a random UID, but GID stays 0
+pid /tmp/nginx.pid;
 worker_processes auto;
-error_log /var/log/nginx/error.log;
+error_log /var/log/nginx/error.log warn;
 
 events {
     worker_connections 1024;
@@ -65,11 +77,12 @@ http {
     sendfile on;
     keepalive_timeout 65;
     
-    client_body_temp_path /tmp/client_body;
-    proxy_temp_path /tmp/proxy_temp;
-    fastcgi_temp_path /tmp/fastcgi_temp;
-    uwsgi_temp_path /tmp/uwsgi_temp;
-    scgi_temp_path /tmp/scgi_temp;
+    # All temp paths must be writable by group 0
+    client_body_temp_path /tmp/nginx-client-body;
+    proxy_temp_path /tmp/nginx-proxy;
+    fastcgi_temp_path /tmp/nginx-fastcgi;
+    uwsgi_temp_path /tmp/nginx-uwsgi;
+    scgi_temp_path /tmp/nginx-scgi;
     
     server {
         listen 8080;
@@ -96,34 +109,66 @@ http {
 }
 EOF
 
-# Configure PHP-FPM for non-root
-RUN sed -i 's/listen = 9000/listen = 127.0.0.1:9000/' /usr/local/etc/php-fpm.d/www.conf \
-    && sed -i 's/;pid = run\/php-fpm.pid/pid = \/tmp\/php-fpm.pid/' /usr/local/etc/php-fpm.conf \
-    && sed -i 's/user = www-data/user = 1001/' /usr/local/etc/php-fpm.d/www.conf \
-    && sed -i 's/group = www-data/group = 0/' /usr/local/etc/php-fpm.d/www.conf
+# Create custom PHP-FPM config that doesn't require root
+RUN cat > /usr/local/etc/php-fpm.d/zz-custom.conf <<'EOF'
+[global]
+pid = /tmp/php-fpm.pid
+error_log = /proc/self/fd/2
+daemonize = no
+
+[www]
+; OpenShift runs with random UID but GID 0
+user = nobody
+group = root
+
+listen = 127.0.0.1:9000
+listen.owner = nobody
+listen.group = root
+
+pm = dynamic
+pm.max_children = 5
+pm.start_servers = 2
+pm.min_spare_servers = 1
+pm.max_spare_servers = 3
+
+; Redirect logs to stdout/stderr
+access.log = /proc/self/fd/2
+php_admin_value[error_log] = /proc/self/fd/2
+php_admin_flag[log_errors] = on
+
+; Session path thats writable
+php_value[session.save_path] = /tmp/sessions
+
+clear_env = no
+catch_workers_output = yes
+EOF
 
 # PHP production optimizations
 RUN cp /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini \
-    && echo 'opcache.enable=1' >> /usr/local/etc/php/php.ini \
-    && echo 'opcache.memory_consumption=256' >> /usr/local/etc/php/php.ini \
-    && echo 'opcache.interned_strings_buffer=16' >> /usr/local/etc/php/php.ini \
-    && echo 'opcache.max_accelerated_files=10000' >> /usr/local/etc/php/php.ini
+    && cat >> /usr/local/etc/php/php.ini <<'EOF'
+opcache.enable=1
+opcache.memory_consumption=256
+opcache.interned_strings_buffer=16
+opcache.max_accelerated_files=10000
+session.save_path=/tmp/sessions
+EOF
 
-# Configure Supervisor
+# Configure Supervisor to run as non-root
 RUN cat > /etc/supervisord.conf <<'EOF'
 [supervisord]
 nodaemon=true
-user=1001
 logfile=/tmp/supervisord.log
 pidfile=/tmp/supervisord.pid
+user=nobody
 
 [program:php-fpm]
-command=/usr/local/sbin/php-fpm -F
+command=/usr/local/sbin/php-fpm -F -R
 stdout_logfile=/dev/stdout
 stdout_logfile_maxbytes=0
 stderr_logfile=/dev/stderr
 stderr_logfile_maxbytes=0
 autorestart=true
+priority=1
 
 [program:nginx]
 command=/usr/sbin/nginx -g 'daemon off;'
@@ -132,10 +177,42 @@ stdout_logfile_maxbytes=0
 stderr_logfile=/dev/stderr
 stderr_logfile_maxbytes=0
 autorestart=true
+priority=2
 EOF
 
-# Switch to non-root user
-USER 1001
+# Create entrypoint script to handle random OpenShift UID
+RUN cat > /app/docker-entrypoint.sh <<'EOF'
+#!/bin/bash
+set -e
+
+# Fix permissions at runtime for OpenShift random UID
+# The container runs with a random UID but always GID 0
+echo "Setting up permissions for UID $(id -u)..."
+
+# Ensure critical directories are writable
+chmod -R g+rwX /tmp /var/log/nginx /var/lib/nginx 2>/dev/null || true
+
+# Laravel specific directories
+if [ -d "/app/storage" ]; then
+    chmod -R g+rwX /app/storage /app/bootstrap/cache 2>/dev/null || true
+fi
+
+# Start supervisord
+echo "Starting services..."
+exec /usr/bin/supervisord -c /etc/supervisord.conf
+EOF
+
+RUN chmod +x /app/docker-entrypoint.sh \
+    && chgrp 0 /app/docker-entrypoint.sh \
+    && chmod g+rwX /app/docker-entrypoint.sh
+
+# Set proper permissions for OpenShift
+RUN chmod -R g+rwX /app \
+    && chgrp -R 0 /app \
+    && chmod -R g+rwX /etc/nginx \
+    && chgrp -R 0 /etc/nginx
+
+# The container will run with a random UID assigned by OpenShift
 
 # Expose port 8080 (standard for OpenShift)
 EXPOSE 8080
@@ -144,5 +221,5 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s \
     CMD php artisan inspire || exit 1
 
-# Start supervisor
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
+# Use entrypoint to handle dynamic permissions
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
