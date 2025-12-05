@@ -4,7 +4,7 @@ WORKDIR /var/www/html
 
 # Install system packages and PHP extensions
 RUN apt-get update && apt-get install -y \
-    libicu-dev libzip-dev libpng-dev libonig-dev libxml2-dev zip unzip git curl \
+    libicu-dev libpq-dev libzip-dev libpng-dev libonig-dev libxml2-dev zip unzip git curl \
  && docker-php-ext-install intl zip pdo_mysql pdo_pgsql mbstring exif bcmath gd pcntl \
  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
