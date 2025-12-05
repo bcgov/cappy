@@ -1,0 +1,15 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: cappy-route
+  labels:
+    app.kubernetes.io/name: cappy-route
+spec:
+  to:
+    kind: Service
+    name: cappy-service
+  port:
+    targetPort: 8080
+  tls:
+    termination: edge
+  wildcardPolicy: None

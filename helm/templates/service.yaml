@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cappy-service
+  labels:
+    app.kubernetes.io/name: cappy-service
+spec:
+  selector:
+    app.kubernetes.io/name: cappy-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
