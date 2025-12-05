@@ -46,32 +46,32 @@ jobs:
     outputs:
       image_tag: ${{ steps.meta.outputs.tags }}
 
-  # deploy:
-  #   runs-on: ubuntu-latest
-  #   needs: build
-  #   permissions:
-  #     contents: read
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: read
 
-  #   environment: ${{ github.ref == 'refs/heads/main' && 'prod' || (github.ref == 'refs/heads/dev' && 'dev') || github.ref == 'refs/heads/test' && 'test' }}
+    environment: 'dev'
 
-  #   steps:
-  #     - uses: actions/checkout@v4
+    steps:
+      - uses: actions/checkout@v4
 
-  #     - name: Install oc CLI
-  #       uses: redhat-actions/oc-installer@v1
+      - name: Install oc CLI
+        uses: redhat-actions/oc-installer@v1
 
-  #     - name: Authenticate and set context for OpenShift
-  #       uses: redhat-actions/oc-login@v1
-  #       with:
-  #         openshift_server_url: ${{ vars.OPENSHIFT_SERVER }}
-  #         namespace: ${{ vars.OPENSHIFT_NAMESPACE }}
-  #         openshift_token: ${{ secrets.OPENSHIFT_TOKEN }}
-  #         insecure_skip_tls_verify: true
+      - name: Authenticate and set context for OpenShift
+        uses: redhat-actions/oc-login@v1
+        with:
+          openshift_server_url: ${{ vars.OPENSHIFT_SERVER }}
+          namespace: ${{ vars.OPENSHIFT_NAMESPACE }}
+          openshift_token: ${{ secrets.OPENSHIFT_TOKEN }}
+          insecure_skip_tls_verify: true
 
-  #     - name: Run Helm upgrade
-  #       run: |
-  #         helm upgrade --install cappy ./helm --set image.tag=${{ needs.build.outputs.image_tag }}
+      - name: Run Helm upgrade
+        run: |
+          helm upgrade --install cappy ./helm --set image.tag=${{ needs.build.outputs.image_tag }}
 
-  #     - name: Trigger OpenShift Rollout
-  #       run: |
-  #         oc rollout restart deployment/cappy
+      - name: Trigger OpenShift Rollout
+        run: |
+          oc rollout restart deployment/cappy
