@@ -63,9 +63,9 @@ RUN chown -R www-data:www-data /var/www/bootstrap/cache /var/www/database \
     && chmod -R 775 /var/www/bootstrap/cache /var/www/database
 
 # Copy custom Apache configuration
-# COPY ports.conf /etc/apache2/ports.conf
+COPY ports.conf /etc/apache2/ports.conf
 # COPY apache2.conf /etc/apache2/apache2.conf
-# COPY 000-default.conf /etc/apache2/sites-available/000-default.conf
+COPY 000-default.conf /etc/apache2/sites-available/000-default.conf
 
 # Generate APP_KEY
 # RUN echo "APP_KEY=" > .env
