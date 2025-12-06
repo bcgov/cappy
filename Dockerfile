@@ -1,40 +1,45 @@
-FROM php:8.2-fpm-alpine
+FROM alpine:3.19
 
-# Install system dependencies
+# Install PHP 8.2 and extensions from Alpine repos
 RUN apk add --no-cache \
+    php82 \
+    php82-fpm \
+    php82-opcache \
+    php82-mysqli \
+    php82-pdo \
+    php82-pdo_mysql \
+    php82-pdo_pgsql \
+    php82-mbstring \
+    php82-xml \
+    php82-openssl \
+    php82-json \
+    php82-phar \
+    php82-zip \
+    php82-gd \
+    php82-dom \
+    php82-session \
+    php82-zlib \
+    php82-curl \
+    php82-exif \
+    php82-fileinfo \
+    php82-tokenizer \
+    php82-xmlwriter \
+    php82-simplexml \
+    php82-ctype \
+    php82-bcmath \
+    php82-pcntl \
+    php82-intl \
     nginx \
     supervisor \
-    postgresql-dev \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
-    libzip-dev \
-    oniguruma-dev \
-    icu-dev \
-    git \
-    curl \
-    zip \
-    unzip
+    curl
 
-# Install PHP extensions
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-configure intl \
-    && docker-php-ext-install -j$(nproc) \
-    pdo \
-    pdo_mysql \
-    pdo_pgsql \
-    mbstring \
-    exif \
-    pcntl \
-    bcmath \
-    gd \
-    zip \
-    intl
+# Create symlink for php command
+RUN ln -s /usr/bin/php82 /usr/bin/php
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Create non-root user (OpenShift will override UID but we set up permissions)
+# Create non-root user
 RUN addgroup -g 1000 laravel && \
     adduser -D -u 1000 -G laravel laravel
 
@@ -56,12 +61,13 @@ RUN mkdir -p /app/storage/logs \
     /var/lib/nginx \
     /var/log/nginx \
     /run/nginx \
-    && chgrp -R 0 /app /var/lib/nginx /var/log/nginx /run/nginx /var/run \
-    && chmod -R g=u /app /var/lib/nginx /var/log/nginx /run/nginx /var/run \
+    /run/php-fpm82 \
+    && chgrp -R 0 /app /var/lib/nginx /var/log/nginx /run/nginx /run/php-fpm82 \
+    && chmod -R g=u /app /var/lib/nginx /var/log/nginx /run/nginx /run/php-fpm82 \
     && chmod -R 775 /app/storage /app/bootstrap/cache
 
 # Configure nginx
-RUN rm /etc/nginx/http.d/default.conf
+RUN rm -f /etc/nginx/http.d/default.conf
 COPY --chown=1000:0 <<'EOF' /etc/nginx/http.d/default.conf
 server {
     listen 8080;
@@ -82,13 +88,15 @@ server {
 }
 EOF
 
-# Configure PHP-FPM to run on port 9000 (not socket) and listen on localhost
-RUN sed -i 's/listen = .*/listen = 127.0.0.1:9000/' /usr/local/etc/php-fpm.d/www.conf \
-    && sed -i 's/^user = .*/user = laravel/' /usr/local/etc/php-fpm.d/www.conf \
-    && sed -i 's/^group = .*/group = laravel/' /usr/local/etc/php-fpm.d/www.conf
+# Configure PHP-FPM
+RUN sed -i 's/listen = .*/listen = 127.0.0.1:9000/' /etc/php82/php-fpm.d/www.conf \
+    && sed -i 's/^user = .*/user = laravel/' /etc/php82/php-fpm.d/www.conf \
+    && sed -i 's/^group = .*/group = laravel/' /etc/php82/php-fpm.d/www.conf \
+    && sed -i 's/^;pid = .*/pid = \/app\/storage\/php-fpm82.pid/' /etc/php82/php-fpm.conf
 
 # Configure nginx to run as non-root
-RUN sed -i 's/user nginx;/user laravel;/' /etc/nginx/nginx.conf 2>/dev/null || true
+RUN sed -i 's/user nginx;/user laravel;/' /etc/nginx/nginx.conf 2>/dev/null || true \
+    && sed -i 's/^pid .*/pid \/app\/storage\/nginx.pid;/' /etc/nginx/nginx.conf
 
 # Create supervisor config
 COPY --chown=1000:0 <<'EOF' /etc/supervisord.conf
@@ -99,7 +107,7 @@ logfile=/app/storage/logs/supervisord.log
 pidfile=/app/storage/supervisord.pid
 
 [program:php-fpm]
-command=php-fpm
+command=/usr/sbin/php-fpm82 -F
 autostart=true
 autorestart=true
 stdout_logfile=/app/storage/logs/php-fpm.log
@@ -114,7 +122,7 @@ stderr_logfile=/app/storage/logs/nginx-error.log
 EOF
 
 # Fix permissions for OpenShift's arbitrary UID
-RUN chmod -R g=u /etc/nginx /etc/supervisord.conf /usr/local/etc/php-fpm.d
+RUN chmod -R g=u /etc/nginx /etc/php82 /etc/supervisord.conf
 
 # Switch to non-root user
 USER 1000
