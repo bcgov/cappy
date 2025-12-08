@@ -27,6 +27,9 @@ spec:
     - podSelector:
         matchLabels:
           app.kubernetes.io/name: cappy-app
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: cappy-queue-worker
     ports:
     - protocol: TCP
       port: 5432
