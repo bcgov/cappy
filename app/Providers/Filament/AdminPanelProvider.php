@@ -30,6 +30,7 @@ class AdminPanelProvider extends PanelProvider
             ->registration()
             ->emailVerification()
             ->profile()
+            ->passwordReset()
             ->login()
             ->brandLogo(asset('images/cappy.svg'))
             ->brandLogoHeight('3rem')
