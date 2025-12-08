@@ -75,3 +75,4 @@ jobs:
       - name: Trigger OpenShift Rollout
         run: |
           oc rollout restart deployment/cappy-app
+          oc rollout restart deployment/cappy-queue-worker
