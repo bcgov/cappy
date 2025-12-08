@@ -19,34 +19,20 @@ class ApplicationsTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->searchable(),
-                TextColumn::make('ministry')
-                    ->searchable(),
-                TextColumn::make('division')
-                    ->searchable(),
-                TextColumn::make('business_owner_name')
-                    ->searchable(),
-                TextColumn::make('business_owner_email')
-                    ->searchable(),
-                TextColumn::make('technical_contact_name')
-                    ->searchable(),
-                TextColumn::make('technical_contact_email')
-                    ->searchable(),
-                TextColumn::make('status')
-                    ->searchable(),
-                TextColumn::make('hosting_type')
-                    ->searchable(),
-                TextColumn::make('hosting_details')
-                    ->searchable(),
-                TextColumn::make('documentation_url')
-                    ->searchable(),
-                TextColumn::make('repository_url')
-                    ->searchable(),
-                TextColumn::make('go_live_date')
-                    ->date()
+                    ->searchable()
                     ->sortable(),
-                TextColumn::make('end_of_life_date')
-                    ->date()
+                TextColumn::make('ministry')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('status')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'active' => 'success',
+                        'inactive' => 'warning',
+                        'decommissioned' => 'danger',
+                        'in_development' => 'info',
+                        default => 'gray',
+                    })
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
