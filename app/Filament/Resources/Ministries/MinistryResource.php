@@ -66,6 +66,14 @@ class MinistryResource extends Resource
             ]);
     }
 
+    public static function getGlobalSearchColumns(): array
+    {
+        return [
+            'name',
+            'short_name'
+        ];
+    }
+
     public static function canViewAny(): bool
     {
         return auth()->user()->hasAnyRole(['user', 'editor', 'admin']);

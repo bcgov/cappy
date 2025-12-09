@@ -66,6 +66,14 @@ class ApplicationResource extends Resource
             ]);
     }
 
+    public static function getGlobalSearchColumns(): array
+    {
+        return [
+            'name',
+            'division'
+        ];
+    }
+
     public static function canViewAny(): bool
     {
         return auth()->user()->hasAnyRole(['user', 'editor', 'admin']);
