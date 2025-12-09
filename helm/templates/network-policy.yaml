@@ -41,7 +41,7 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      app: cappy-app
+      app.kubernetes.io/name: cappy-app
   ingress:
     - from:
         - namespaceSelector:
