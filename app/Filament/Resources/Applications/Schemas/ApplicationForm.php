@@ -8,7 +8,6 @@ use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
 use Filament\Schemas\Schema;
 
 class ApplicationForm
@@ -24,9 +23,12 @@ class ApplicationForm
                             ->maxLength(255)
                             ->columnSpanFull(),
 
-                        TextInput::make('ministry')
-                            ->required()
-                            ->maxLength(255),
+                        Select::make('ministry_id')
+                            ->label('Ministry')
+                            ->relationship('ministry', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->required(),
 
                         TextInput::make('division')
                             ->maxLength(255),

@@ -21,9 +21,10 @@ class ApplicationsTable
                 TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('ministry')
-                    ->searchable()
-                    ->sortable(),
+                TextColumn::make('ministry.name')
+                    ->label('Ministry')
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('status')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {

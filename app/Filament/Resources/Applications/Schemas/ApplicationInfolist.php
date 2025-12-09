@@ -13,7 +13,7 @@ class ApplicationInfolist
         return $schema
             ->components([
                 TextEntry::make('name'),
-                TextEntry::make('ministry'),
+                TextEntry::make('ministry.name'),
                 TextEntry::make('division')
                     ->placeholder('-'),
                 TextEntry::make('business_owner_name'),
@@ -46,7 +46,7 @@ class ApplicationInfolist
                     ->placeholder('-'),
                 TextEntry::make('deleted_at')
                     ->dateTime()
-                    ->visible(fn (Application $record): bool => $record->trashed()),
+                    ->visible(fn(Application $record): bool => $record->trashed()),
             ]);
     }
 }

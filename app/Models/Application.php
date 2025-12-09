@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Application extends Model
 {
@@ -16,7 +17,7 @@ class Application extends Model
      */
     protected $fillable = [
         'name',
-        'ministry',
+        'ministry_id',
         'division',
         'business_owner_name',
         'business_owner_email',
@@ -42,6 +43,22 @@ class Application extends Model
         'end_of_life_date' => 'date:Y-m-d',
         'deleted_at' => 'datetime',
     ];
+
+    /**
+     * Get the ministry that owns the application.
+     */
+    public function ministry(): BelongsTo
+    {
+        return $this->belongsTo(Ministry::class);
+    }
+
+    /**
+     * Get the ministry name with fallback to the legacy name.
+     */
+    public function getMinistryNameAttribute(): ?string
+    {
+        return $this->ministry?->name;
+    }
 
     /**
      * The model's default values for attributes.
@@ -76,9 +93,9 @@ class Application extends Model
     {
         return [
             'on_premise' => 'On-Premise',
-            'cloud' => 'Cloud',
-            'hybrid' => 'Hybrid',
-            'saas' => 'SaaS',
+            'public_cloud' => 'Public Cloud',
+            'private_cloud' => 'Private Cloud',
+            'other' => 'Other',
         ];
     }
 }
