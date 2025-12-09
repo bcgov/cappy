@@ -249,7 +249,7 @@ Cappy uses **PostgreSQL v17**. The database runs as a **standalone PostgreSQL in
 
 * Standard **PostgreSQL v17** installation
 * Deployed via **Helm** (no operator required)
-* Works in any managed OpenShift environment
+* Works in any OpenShift environment
 * Does **not** require cluster-admin permissions
 * Runs as a **single-instance StatefulSet** backed by a PVC
 * Uses the official `postgres:17-alpine` image
@@ -466,6 +466,89 @@ APP_URL=<your-public-api-url>
 
 Values should be adjusted for the target namespace/environment.
 
-## APS Gateway and Routing
+## Gateway Routing Setup (Kong via APS)
 
-*todo*
+This application uses the **BCGov APS Gateway (Kong)** for routing and authentication.
+Follow the steps below to configure a new gateway, apply the route, and enable IDIR authentication.
+
+### 1. Log in as an API Provider
+
+Go to:
+
+* **API Directory:** [https://api.gov.bc.ca/devportal/api-directory](https://api.gov.bc.ca/devportal/api-directory)
+* Sign in as an **API Provider**.
+
+Reference docs:
+[https://developer.gov.bc.ca/docs/default/component/aps-infra-platform-docs/tutorials/quick-start/](https://developer.gov.bc.ca/docs/default/component/aps-infra-platform-docs/tutorials/quick-start/)
+
+### 2. Authenticate with the GWA CLI
+
+Install the GWA CLI (if not installed), then log in:
+
+```bash
+gwa login
+```
+
+### 3. Create a New Gateway
+
+Create a new gateway:
+
+```bash
+gwa gateway create
+```
+
+List gateways to find the newly created one:
+
+```bash
+gwa gateway list
+```
+
+Copy the **gateway ID** (format: `gw-xxxxxx`), you'll need it in the next step.
+
+### 4. Update gw-config.yaml
+
+Open the project’s gateway config file:
+
+```
+helm/gw-config.yaml
+```
+
+Update the following:
+
+* Replace **`gw-xxxx`** with the new gateway ID.
+* Set the **route host** you want (the public hostname users will access).
+* Fill in fields tagged as **# CSS** with values from the SSO integration (next step).
+* Ensure the **service URL** matches the name of your OpenShift service (e.g. `http://cappy-service.a2edba-dev.svc.cluster.local`).
+
+### 5. Request an SSO Integration (IDIR)
+
+Go to the CSS (Common Services) team portal:
+
+* [https://sso-requests.apps.gold.devops.gov.bc.ca/](https://sso-requests.apps.gold.devops.gov.bc.ca/)
+
+Request a new integration using **IDIR authentication**.
+
+Copy the fields into the appropriate places in `gw-config.yaml` (all fields marked **# CSS**).
+
+### 6. Deploy the Gateway Configuration
+
+When `gw-config.yaml` is fully updated, apply it:
+
+```bash
+gwa apply -i gw-config.yaml
+```
+
+Watch the deployment:
+
+```bash
+gwa status --hosts
+```
+
+Wait until the hostname shows as 200 UP.
+
+### 7. Access the Application
+
+Once deployed, access the app using the hostname set in the route.
+
+* The gateway will enforce **IDIR authentication**.
+* Successful authentication will forward the request to your OpenShift service.
