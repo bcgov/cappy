@@ -41,7 +41,7 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      app: metabase
+      app: cappy-app
   ingress:
     - from:
         - namespaceSelector:

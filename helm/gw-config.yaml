@@ -1,7 +1,7 @@
 kind: GatewayService
 name: cappy-dev
 tags: [ns.gw-6549a.dev]
-url: http://cappy.a2edba-dev.svc.cluster.local:80 # Service
+url: http://cappy-service.a2edba-dev.svc.cluster.local:80 # Service
 port: 80
 protocol: http
 routes:
