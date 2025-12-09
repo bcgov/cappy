@@ -1,107 +1,104 @@
 ## About Cappy
 
-Cappy is intended as a data catalogue of applications, an Application Catalogue if you will.
+Cappy is intended as a data catalogue of applications — an Application Catalogue.
 
-Cappy is built using [FilamentPHP](https://filamentphp.com) which is itself built atop [Laravel](https://laravel.com).
+It is built using [FilamentPHP](https://filamentphp.com), which itself runs on [Laravel](https://laravel.com).
 
+---
 
 ## Setup Instructions
 
-Requirements:
+### Requirements
 
--   [PHP](https://www.php.net/manual/en/install.php)
--   [Composer](https://getcomposer.org/doc/00-intro.md)
+* [PHP](https://www.php.net/manual/en/install.php) 8.3
+* [Composer](https://getcomposer.org/doc/00-intro.md)
 
-Clone the repository:
+### Clone the Repository
 
-```
+```bash
 git clone https://github.com/bcgov/cappy.git
-```
-
-Navigate into the repository:
-
-```
 cd cappy
 ```
 
 ---
 
-### For Quick setup
+## Quick Setup (Using Docker + Sail)
 
-Install with Docker using Sail:
+### Windows Prerequisites (WSL + Docker Desktop)
 
-If you are using Windows:
-
-```
+```bash
 # Install WSL
 wsl --install
 
-# Set the default version to WSL 2
+# Set WSL 2 as default
 wsl --set-default-version 2
 
-# Download Docker Desktop https://www.docker.com/products/docker-desktop/
-# Make sure WSL 2 is enabled in Docker Desktop -> Settings -> General -> Use WSL 2 Based Engine
-# And make sure resources is enabled in Docker Desktop -> Settings -> WSL Integration -> Ubuntu (or your specific distro)
+# Install Docker Desktop and ensure:
+#   - WSL 2 engine is enabled (Settings → General → Use WSL 2 Based Engine)
+#   - WSL Integration is enabled for your distro (Settings → WSL Integration)
 
-# Set your default WSL version
+# Set your default distro
 wsl -s Ubuntu
 
-# Optionally if you installed a different distro or maintain others, you can see your installed distros and default distro with this command
+# View installed distros (optional)
 wsl --list
 
-# Now make sure Docker Desktop is running, and open WSL
-wsl
-
-# Now navigate to your repo (in my case, it is the following)
+# Open WSL and navigate to your repo (example path)
 cd /mnt/c/Users/{username}/Documents/GitHub/cappy
 ```
 
-The rest of the commands will be the same for WSL, Mac and Linux
+The following commands are the same for WSL, macOS, and Linux:
 
-```
-# Install composer packages (which includes sail)
+### Install Dependencies
+
+```bash
 composer install
+```
 
-# We are using sail which provides an easy to use interface with docker for running our artisan commands
-# You can read more about Sail https://laravel.com/docs/12.x/sail
+Sail is included automatically.
 
-# Now you can run all your php commands with ./vendor/bin/sail instead
-# I recommend creating an alias so you can use sail instead of typing ./vendor/bin/sail every time
-# Depending on where your bash configs are located you will have to do one of the following:
+### (Optional) Add Sail Alias
+
+```bash
 nano ~/.bashrc
-# Or
+# or
 nano ~/.zshrc
+```
 
-# Then add this line, save the file, and restart your terminal
+Add:
+
+```bash
 alias sail='./vendor/bin/sail'
+```
 
-# To start the application run
-./vendor/bin/sail up -d
-# Or if you have setup the alias
+Restart your terminal.
+
+### Start and Stop the Application
+
+```bash
+# Start
 sail up -d
 
-# To stop the application run
-./vendor/bin/sail down
-# Or if you have setup the alias
+# Stop
 sail down
 ```
 
-Create the APP_KEY, run the migrations and seed the data:
+---
 
-```
-# Create the .env file
+## Environment Setup
+
+### Create `.env`, App Key, Migrate, and Seed
+
+```bash
 cp .env.example .env
-
-# Create the APP_KEY
 sail artisan key:generate
-
-# Run the migrations
 sail artisan migrate
-
-# Seed the initial data
 sail artisan db:seed
+```
 
-If you would like to use a GUI for your Postgres database I reccomend TablePlus. In the connection details you will want to put the following in the connection details:
+### Optional: Connect with TablePlus
+
+Use these connection details:
 
 ```
 Host: localhost
@@ -111,113 +108,364 @@ Password: password
 Database: laravel
 ```
 
-You can add a user account for yourself with the command:
+### Create Your User Account
 
-```
+```bash
 sail artisan make:filament-user
 ```
 
-By default you will be assigned the 'user' role which will allow you to view entries but not edit/create any records. To assign a role "admin" or "editor" run the following command:
+By default you will receive the **user** role (view-only).
 
-```
+To assign **admin** or **editor**:
+
+```bash
 sail artisan assign-user-role
 ```
 
-The page should now be accessible at
+Your app should now be available at:
 
-`http://localhost/`
+```
+http://localhost/
+```
 
 ---
 
-## General Developer Workflows for Adding New Content
+## Developer Workflow: Adding New Content
 
-```
+```bash
 # Create a model and migration
 sail artisan make:model Test -m
+```
 
-# The Model should be singular and it will create a plural table (in this case tests)
+Example migration structure:
 
-# Edit the migration to include the the columns
+```php
 Schema::create('tests', function (Blueprint $table) {
     $table->id();
     $table->string('name');
     $table->timestamps();
 });
 
-# Make sure to include a rollback
 Schema::dropIfExists('tests');
+```
 
-# Run the migration
+Run the migration:
+
+```bash
 sail artisan migrate
+```
 
-# Optionally create a seeder
+### Optional Seeder
+
+```bash
 sail artisan make:seeder TestSeeder
+```
 
-# Fill the seeder
+Example seeder:
+
+```php
 Test::create(['name' => 'Name One']);
 Test::create(['name' => 'Name Two']);
-
-# Run the specific seeder
-sail artisan db:seed --class=TestSeeder
-
-# Create a filament resource from the model
-# Make sure to specify which panel you want the resource to be in
-sail artisan make:filament-resource Test --view
-
-# In your new TestResource.php define the $form and $table
-# $form is used for editing and creating records
-return $form
-    ->schema([
-        Forms\Components\TextInput::make('name')
-            ->required(),
-    ]);
-
-# $table is used for listing and viewing the records
-return $table
-    ->columns([
-        Tables\Columns\TextColumn::make('name')
-            ->searchable()
-            ->sortable(),
-    ]);
-
-# You should see the page name on the left menu of whichever dashboard you added it to
-
-### Enable Local Exports
-
-Certain views offer the ability to export a list of entries in the form of a CSV or Excel File. The queue worker should be running automatically in the dockerized setup, but to manually run it you can use the following command:
-
 ```
+
+Run the seeder:
+
+```bash
+sail artisan db:seed --class=TestSeeder
+```
+
+### Create Filament Resource
+
+```bash
+sail artisan make:filament-resource Test --view
+```
+
+Define the `form`:
+
+```php
+return $form->schema([
+    Forms\Components\TextInput::make('name')->required(),
+]);
+```
+
+Define the `table`:
+
+```php
+return $table->columns([
+    Tables\Columns\TextColumn::make('name')
+        ->searchable()
+        ->sortable(),
+]);
+```
+
+---
+
+## Local Exports
+
+Some views allow exporting CSV/Excel files. The queue worker should run automatically, but you may manually run it:
+
+```bash
 sail artisan queue:work
 ```
 
-### Using the mail provider
+---
 
-Mailhog is setup locally so you can test email features. Make sure the queue is running and features such as email password reset will work locally.
+## Mail Provider (Mailhog)
 
-You can go to `http://localhost:8025` to see the Mailhog GUI which will capture emails being sent.
+Mailhog is available locally at:
+
+```
+http://localhost:8025
+```
+
+It will capture outgoing emails such as password reset messages.
+
+---
 
 ## Learning Laravel
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+* Official documentation: [https://laravel.com/docs](https://laravel.com/docs)
+* Interactive tutorial: [https://bootcamp.laravel.com](https://bootcamp.laravel.com)
+* Video library: [https://laracasts.com](https://laracasts.com)
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
-
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Laravel is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
 
+---
 
-# Deployment Details:
-
-This section will be moved to Anansi when it becomes available.
+# Deployment Details
 
 ## Database Setup
-todo
+
+Cappy uses **PostgreSQL v17**. The database runs as a **standalone PostgreSQL instance** deployed inside OpenShift. Full installation and operational instructions are available in this repository:
+
+**Database README:**
+[https://github.com/kiiskila-bcgov/app-insight-platform/blob/main/postgres/README.md](https://github.com/kiiskila-bcgov/app-insight-platform/blob/main/postgres/README.md)
+
+### Summary of the Deployment
+
+* Standard **PostgreSQL v17** installation
+* Deployed via **Helm** (no operator required)
+* Works in any managed OpenShift environment
+* Does **not** require cluster-admin permissions
+* Runs as a **single-instance StatefulSet** backed by a PVC
+* Uses the official `postgres:17-alpine` image
+
+### Installation
+
+Follow the steps in the linked README, which include:
+
+1. Deploying the database via Helm:
+
+   ```bash
+   helm install postgres .
+   ```
+
+2. Verifying the StatefulSet and pod readiness:
+
+   ```bash
+   oc get statefulset postgres
+   oc wait --for=condition=ready pod/postgres-0 --timeout=300s
+   ```
+
+3. Retrieving the autogenerated `postgres` password:
+
+   ```bash
+   oc get secret postgres-credentials \
+     -o jsonpath='{.data.password}' | base64 -d
+   ```
+
+### Connection Details
+
+After deployment, the service will be available internally:
+
+```
+Host: postgres.<namespace>.svc.cluster.local
+Port: 5432
+Database: postgres
+Username: postgres
+Password: (from the secret)
+```
+
+For local development access:
+
+```bash
+oc port-forward svc/postgres 5432:5432
+```
+
+Then connect with any PostgreSQL client (e.g., `psql`, TablePlus, DBeaver).
+
+### Configuration Notes
+
+You may customize your instance by editing `values.yaml`, including:
+
+* Image version
+* Resource requests/limits
+* Storage size
+* PostgreSQL config parameters
+
+See the linked README for examples.
+
+### Limitations
+
+* This deployment is **not HA** (single pod)
+* Intended for development and small-scale production workloads
+* Stores data on a PVC (persists across restarts)
 
 ## Laravel Setup
-todo
+
+Cappy is deployed to OpenShift using a custom Docker image, Helm charts, and GitHub Actions–based CI/CD. This section summarizes how the application is built and deployed.
+
+### Container Image
+
+The application image is defined in the project Dockerfile, which uses:
+
+* **PHP 8.3 with Apache**
+* Required system packages for PostgreSQL (`pdo_pgsql`,`pgsql`)
+* Vite asset building via Node.js
+* Composer dependencies installed with optimized autoloading
+* Correct Apache configuration for a Laravel public directory
+* Proper file permissions for storage, logs, and cache
+
+Full Dockerfile:
+[https://github.com/bcgov/cappy/blob/main/Dockerfile](https://github.com/bcgov/cappy/blob/main/Dockerfile)
+
+The build process includes:
+
+* Installing PHP extensions
+* Running `npm install` and `npm run build`
+* Running `composer install --no-dev`
+* Setting up directory permissions
+* Exposing port **8080**
+
+### Deployment Using Helm (OpenShift)
+
+The Helm chart handles all required OpenShift resources:
+
+* Deployment (`cappy-app`)
+* Worker Deployment (`cappy-queue-worker`)
+* Service
+* PVC for persistent storage
+* NetworkPolicies
+
+Helm chart location:
+[https://github.com/bcgov/cappy/tree/main/helm](https://github.com/bcgov/cappy/tree/main/helm)
+
+To deploy or upgrade manually:
+
+```bash
+helm upgrade --install cappy ./helm --set image.tag=<image-tag>
+```
+
+### GitHub Actions CI/CD Pipeline
+
+The repository includes a CI/CD workflow that:
+
+1. Builds the Docker image
+2. Pushes it to GitHub Container Registry (GHCR)
+3. Authenticates to OpenShift
+4. Performs a Helm upgrade
+5. Restarts deployments
+
+Workflow file:
+[https://github.com/bcgov/cappy/blob/main/.github/workflows/build-and-deploy.yaml](https://github.com/bcgov/cappy/blob/main/.github/workflows/build-and-deploy.yaml)
+
+#### Required GitHub Environments
+
+Create environments:
+
+```
+Settings → Environments → New Environment
+```
+
+Create two:
+
+* `dev`
+* `prod`
+
+Each environment must define:
+
+**Variables**
+
+```
+OPENSHIFT_NAMESPACE=<your-namespace>
+OPENSHIFT_SERVER=https://api.silver.devops.gov.bc.ca:6443
+```
+
+**Secrets**
+
+```
+OPENSHIFT_TOKEN=<service-account-token>
+```
+
+#### Creating the OpenShift Service Account Token
+
+```bash
+export SA=github-actions-sa
+oc create sa $SA
+
+# After OpenShift 4.12, tokens are not auto-generated.
+# Create a token secret manually:
+cat <<EOF > service-account-token.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: github-actions-sa-token
+  annotations:
+    kubernetes.io/service-account.name: github-actions-sa
+type: kubernetes.io/service-account-token
+EOF
+
+oc apply -f service-account-token.yaml
+```
+
+Then assign permissions:
+
+```bash
+oc policy add-role-to-user edit system:serviceaccount:<your-namespace>:github-actions-sa
+```
+
+After the secret appears in OpenShift, copy the **token** value into the `OPENSHIFT_TOKEN` GitHub secret.
+
+### Application Secrets (OpenShift)
+
+Create an OpenShift secret named:
+
+```
+cappy-secrets
+```
+
+This secret must contain production environment values such as:
+
+```
+APP_KEY=<app-key>
+
+DB_CONNECTION=pgsql
+DB_HOST=postgres
+DB_PORT=5432
+DB_USERNAME=laravel
+DB_PASSWORD=<password>
+DB_DATABASE=laravel
+
+MAIL_HOST=apps.smtp.gov.bc.ca
+MAIL_PORT=25
+
+CACHE_DRIVER=database
+APP_DEBUG=false
+APP_NAME=cappy
+
+APP_ENV=production
+APP_TIMEZONE=America/Vancouver
+
+ASSET_URL=<your-public-openshift-route>
+APP_URL=<your-public-api-url>
+```
+
+Values should be adjusted for the target namespace/environment.
 
 ## APS Gateway and Routing
-todo
+
+*todo*
