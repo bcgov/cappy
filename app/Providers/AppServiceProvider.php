@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Support\Facades\FilamentView;
 use Illuminate\Support\Facades\Blade;
+use App\Http\Middleware\TrustProxies;
+use Illuminate\Contracts\Http\Kernel;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,6 +31,9 @@ class AppServiceProvider extends ServiceProvider
         } else {
             Model::preventLazyLoading(false);
         }
+
+        $this->app->make(Kernel::class)->prependMiddleware(TrustProxies::class);
+
 
         FilamentView::registerRenderHook(
             'panels::scripts.after',
