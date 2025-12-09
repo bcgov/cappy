@@ -26,14 +26,12 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         if (app()->isProduction()) {
+            URL::forceRootUrl(config('app.url'));
             URL::forceScheme('https');
             $this->app['request']->server->set('HTTPS', true);
         } else {
             Model::preventLazyLoading(false);
         }
-
-        $this->app->make(Kernel::class)->prependMiddleware(TrustProxies::class);
-
 
         FilamentView::registerRenderHook(
             'panels::scripts.after',
