@@ -317,7 +317,154 @@ See the linked README for examples.
 
 ## Laravel Setup
 
-*todo*
+Cappy is deployed to OpenShift using a custom Docker image, Helm charts, and GitHub Actions–based CI/CD. This section summarizes how the application is built and deployed.
+
+### Container Image
+
+The application image is defined in the project Dockerfile, which uses:
+
+* **PHP 8.3 with Apache**
+* Required system packages for PostgreSQL (`pdo_pgsql`,`pgsql`)
+* Vite asset building via Node.js
+* Composer dependencies installed with optimized autoloading
+* Correct Apache configuration for a Laravel public directory
+* Proper file permissions for storage, logs, and cache
+
+Full Dockerfile:
+[https://github.com/bcgov/cappy/blob/main/Dockerfile](https://github.com/bcgov/cappy/blob/main/Dockerfile)
+
+The build process includes:
+
+* Installing PHP extensions
+* Running `npm install` and `npm run build`
+* Running `composer install --no-dev`
+* Setting up directory permissions
+* Exposing port **8080**
+
+### Deployment Using Helm (OpenShift)
+
+The Helm chart handles all required OpenShift resources:
+
+* Deployment (`cappy-app`)
+* Worker Deployment (`cappy-queue-worker`)
+* Service
+* PVC for persistent storage
+* NetworkPolicies
+
+Helm chart location:
+[https://github.com/bcgov/cappy/tree/main/helm](https://github.com/bcgov/cappy/tree/main/helm)
+
+To deploy or upgrade manually:
+
+```bash
+helm upgrade --install cappy ./helm --set image.tag=<image-tag>
+```
+
+### GitHub Actions CI/CD Pipeline
+
+The repository includes a CI/CD workflow that:
+
+1. Builds the Docker image
+2. Pushes it to GitHub Container Registry (GHCR)
+3. Authenticates to OpenShift
+4. Performs a Helm upgrade
+5. Restarts deployments
+
+Workflow file:
+[https://github.com/bcgov/cappy/blob/main/.github/workflows/build-and-deploy.yaml](https://github.com/bcgov/cappy/blob/main/.github/workflows/build-and-deploy.yaml)
+
+#### Required GitHub Environments
+
+Create environments:
+
+```
+Settings → Environments → New Environment
+```
+
+Create two:
+
+* `dev`
+* `prod`
+
+Each environment must define:
+
+**Variables**
+
+```
+OPENSHIFT_NAMESPACE=<your-namespace>
+OPENSHIFT_SERVER=https://api.silver.devops.gov.bc.ca:6443
+```
+
+**Secrets**
+
+```
+OPENSHIFT_TOKEN=<service-account-token>
+```
+
+#### Creating the OpenShift Service Account Token
+
+```bash
+export SA=github-actions-sa
+oc create sa $SA
+
+# After OpenShift 4.12, tokens are not auto-generated.
+# Create a token secret manually:
+cat <<EOF > service-account-token.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: github-actions-sa-token
+  annotations:
+    kubernetes.io/service-account.name: github-actions-sa
+type: kubernetes.io/service-account-token
+EOF
+
+oc apply -f service-account-token.yaml
+```
+
+Then assign permissions:
+
+```bash
+oc policy add-role-to-user edit system:serviceaccount:<your-namespace>:github-actions-sa
+```
+
+After the secret appears in OpenShift, copy the **token** value into the `OPENSHIFT_TOKEN` GitHub secret.
+
+### Application Secrets (OpenShift)
+
+Create an OpenShift secret named:
+
+```
+cappy-secrets
+```
+
+This secret must contain production environment values such as:
+
+```
+APP_KEY=<app-key>
+
+DB_CONNECTION=pgsql
+DB_HOST=postgres
+DB_PORT=5432
+DB_USERNAME=laravel
+DB_PASSWORD=<password>
+DB_DATABASE=laravel
+
+MAIL_HOST=apps.smtp.gov.bc.ca
+MAIL_PORT=25
+
+CACHE_DRIVER=database
+APP_DEBUG=false
+APP_NAME=cappy
+
+APP_ENV=production
+APP_TIMEZONE=America/Vancouver
+
+ASSET_URL=<your-public-openshift-route>
+APP_URL=<your-public-api-url>
+```
+
+Values should be adjusted for the target namespace/environment.
 
 ## APS Gateway and Routing
 
