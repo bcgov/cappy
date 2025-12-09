@@ -25,7 +25,7 @@
         <a href="/admin/login"
             class="inline-block bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-6 rounded-full border-2 border-gray-500 hover:border-gray-600 transition-colors duration-200 shadow-sm"
             style="background-color: #6b7280 !important; padding: 12px !important;">
-            Visit the admin panel
+            Visit the application catalogue
         </a>
     </div>
 </body>

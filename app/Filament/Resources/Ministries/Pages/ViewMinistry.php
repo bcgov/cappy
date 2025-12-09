@@ -13,7 +13,8 @@ class ViewMinistry extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            EditAction::make(),
+            EditAction::make()
+                ->visible(fn(): bool => auth()->user()->hasAnyRole(['editor', 'admin'])),
         ];
     }
 }

@@ -9,11 +9,12 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Filament\Models\Contracts\FilamentUser;
 use Spatie\Permission\Traits\HasRoles;
 use Filament\Panel;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable implements MustVerifyEmail, FilamentUser
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, Notifiable, HasRoles, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -47,6 +48,13 @@ class User extends Authenticatable implements MustVerifyEmail, FilamentUser
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    protected static function booted()
+    {
+        static::created(function ($user) {
+            $user->assignRole('user');
+        });
     }
 
     public function canAccessPanel(Panel $panel): bool

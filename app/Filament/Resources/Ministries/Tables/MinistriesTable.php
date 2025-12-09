@@ -2,14 +2,10 @@
 
 namespace App\Filament\Resources\Ministries\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ForceDeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\TrashedFilter;
+use Filament\Actions\CreateAction;
 use Filament\Tables\Table;
 
 class MinistriesTable
@@ -26,18 +22,20 @@ class MinistriesTable
                     ->sortable(),
             ])
             ->filters([
-                TrashedFilter::make(),
+                //
             ])
-            ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
+            ->actions([
+                ViewAction::make()
+                    ->visible(fn(): bool => auth()->user()->hasAnyRole(['user', 'editor', 'admin'])),
+                EditAction::make()
+                    ->visible(fn(): bool => auth()->user()->hasAnyRole(['editor', 'admin'])),
             ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
-                ]),
+            ->bulkActions([
+                //
+            ])
+            ->emptyStateActions([
+                CreateAction::make()
+                    ->visible(fn(): bool => auth()->user()->hasAnyRole(['editor', 'admin'])),
             ]);
     }
 }

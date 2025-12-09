@@ -17,9 +17,8 @@ class EditApplication extends EditRecord
     {
         return [
             ViewAction::make(),
-            DeleteAction::make(),
-            ForceDeleteAction::make(),
-            RestoreAction::make(),
+            DeleteAction::make()
+                ->visible(fn(): bool => auth()->user()->hasAnyRole(['admin'])),
         ];
     }
 }
