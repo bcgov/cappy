@@ -1,0 +1,62 @@
+kind: GatewayService
+name: cappy-dev
+tags: [ns.gw-6549a.dev]
+url: http://cappy.a2edba-dev.svc.cluster.local:80 # Service
+port: 80
+protocol: http
+routes:
+  - name: a2edba-dev-callback
+    tags: [ns.gw-6549a.dev, aps.route.session.cookie.enabled]
+    hosts:
+      - cappy.dev.api.gov.bc.ca # route host
+    paths:
+      - /
+    methods:
+      - GET
+      - POST
+      - PUT
+      - OPTIONS
+    strip_path: false
+    plugins:
+      - enabled: true
+        name: oidc
+        tags: [ns.gw-6549a.dev]
+        config:
+          access_token_as_bearer: "no"
+          access_token_header_name: Authorization
+          bearer_jwt_auth_allowed_auds:
+            - cappy-application-catalogue-6191 # CSS
+          bearer_jwt_auth_enable: "no"
+          bearer_jwt_auth_signing_algs:
+            - RS256
+          bearer_only: "no"
+          client_id: cappy-application-catalogue-6191 # CSS
+          client_secret: SECRET_FROM_CSS # CSS
+          disable_access_token_header: "yes"
+          disable_id_token_header: "yes"
+          disable_userinfo_header: "yes"
+          discovery: https://dev.loginproxy.gov.bc.ca/auth/realms/standard/.well-known/openid-configuration # CSS
+          groups_claim: client_roles
+          header_claims:
+            - idir_username
+            - email
+          header_names:
+            - X-Idir-Username
+            - X-User-Email
+          logout_path: /logout
+          realm: kong
+          redirect_uri: https://cappy.dev.api.gov.bc.ca/sso # CSS
+          redirect_after_logout_uri: /
+          response_type: code
+          revoke_tokens_on_logout: "yes"
+          scope: openid
+          session_secret: null
+          session_secure: "yes"
+          skip_already_auth_requests: "no"
+          ssl_verify: "no"
+          timeout: null
+          token_endpoint_auth_method: client_secret_post
+          unauth_action: auth
+          use_jwks: "yes"
+          userinfo_header_name: X-USERINFO
+          validate_scope: "yes"
