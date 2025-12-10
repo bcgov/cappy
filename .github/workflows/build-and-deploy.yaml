@@ -4,6 +4,16 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: dev
+        type: choice
+        options:
+          - dev
+          - prod
 
 permissions:
   contents: read
@@ -52,7 +62,7 @@ jobs:
     permissions:
       contents: read
 
-    environment: 'dev'
+    environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || 'dev' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -64,8 +74,8 @@ jobs:
         uses: redhat-actions/oc-login@v1
         with:
           openshift_server_url: ${{ vars.OPENSHIFT_SERVER }}
-          namespace: ${{ vars.OPENSHIFT_NAMESPACE }}
-          openshift_token: ${{ secrets.OPENSHIFT_TOKEN }}
+          namespace: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'prod' && vars.OPENSHIFT_NAMESPACE_PROD || vars.OPENSHIFT_NAMESPACE }}
+          openshift_token: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'prod' && secrets.OPENSHIFT_TOKEN_PROD || secrets.OPENSHIFT_TOKEN }}
           insecure_skip_tls_verify: true
 
       - name: Run Helm upgrade
