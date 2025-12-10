@@ -16,6 +16,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Filament\Pages\Auth\Register;
+use App\Filament\Pages\Auth\EditProfile;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -27,7 +28,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->registration(Register::class)
             ->emailVerification()
-            ->profile()
+            ->profile(EditProfile::class)
             ->passwordReset()
             ->login()
             ->brandLogo(fn() => view('filament.admin.logo'))
