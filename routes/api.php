@@ -3,6 +3,5 @@
 use App\Http\Controllers\Api\ApplicationController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::apiResource('applications', ApplicationController::class);
-});
+Route::get('/applications', [ApplicationController::class, 'index'])
+    ->middleware(['auth:sanctum', 'ability:admin']);
