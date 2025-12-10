@@ -9,11 +9,11 @@ image:
 
 resources:
   requests:
-    cpu: "500m"
+    cpu: "390m"
     memory: "1Gi"
   limits:
-    cpu: "1"
-    memory: "2Gi"
+    cpu: "390m"
+    memory: "1Gi"
 
 pvc:
   storage: "64Mi"
@@ -31,8 +31,8 @@ queueWorker:
   replicaCount: 1
   resources:
     limits:
-      cpu: "50m"
+      cpu: "30m"
       memory: "128Mi"
     requests:
-      cpu: "25m"
-      memory: "64Mi"
+      cpu: "30m"
+      memory: "128Mi"
