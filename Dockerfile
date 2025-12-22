@@ -48,7 +48,7 @@ RUN if [ -f package.json ]; then npm install; fi
 RUN npm run build
 
 # Install Composer dependencies
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader --no-scripts
 
 # Create the storage directory if it doesn't exist as part of the image
 RUN mkdir -p /var/www/storage
