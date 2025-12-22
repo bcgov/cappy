@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\Applications\Tables;
 
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
-use Filament\Actions\CreateAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -15,38 +15,56 @@ class ApplicationsTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->searchable()
-                    ->sortable(),
-                TextColumn::make('ministry.name')
-                    ->label('Ministry')
-                    ->sortable()
                     ->searchable(),
-                TextColumn::make('status')
-                    ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        'active' => 'success',
-                        'inactive' => 'warning',
-                        'decommissioned' => 'danger',
-                        'in_development' => 'info',
-                        default => 'gray',
-                    })
+                TextColumn::make('category')
+                    ->searchable(),
+                TextColumn::make('average_daily_users')
+                    ->numeric()
                     ->sortable(),
+                TextColumn::make('annual_cost')
+                    ->numeric()
+                    ->sortable(),
+                TextColumn::make('cost_function')
+                    ->searchable(),
+                TextColumn::make('cost_per_unit')
+                    ->numeric()
+                    ->sortable(),
+                TextColumn::make('annual_vendor_cost')
+                    ->numeric()
+                    ->sortable(),
+                TextColumn::make('initial_deployment')
+                    ->date()
+                    ->sortable(),
+                TextColumn::make('end_of_support')
+                    ->date()
+                    ->sortable(),
+                TextColumn::make('end_of_life')
+                    ->date()
+                    ->sortable(),
+                TextColumn::make('disposition_deadline')
+                    ->date()
+                    ->sortable(),
+                TextColumn::make('disposition_decision')
+                    ->searchable(),
+                TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
             ])
-            ->actions([
-                ViewAction::make()
-                    ->visible(fn(): bool => auth()->user()->hasAnyRole(['user', 'editor', 'admin'])),
-                EditAction::make()
-                    ->visible(fn(): bool => auth()->user()->hasAnyRole(['editor', 'admin'])),
+            ->recordActions([
+                EditAction::make(),
             ])
-            ->bulkActions([
-                //
-            ])
-            ->emptyStateActions([
-                CreateAction::make()
-                    ->visible(fn(): bool => auth()->user()->hasAnyRole(['editor', 'admin'])),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                ]),
             ]);
     }
 }

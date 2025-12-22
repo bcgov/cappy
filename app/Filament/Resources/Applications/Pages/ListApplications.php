@@ -13,8 +13,7 @@ class ListApplications extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make()
-                ->visible(fn(): bool => auth()->user()->hasAnyRole(['editor', 'admin'])),
+            CreateAction::make(),
         ];
     }
 }

@@ -2,22 +2,17 @@
 
 namespace App\Models;
 
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Filament\Models\Contracts\FilamentUser;
-use Spatie\Permission\Traits\HasRoles;
-use Filament\Panel;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Str;
+use Laravel\Fortify\TwoFactorAuthenticatable;
 
-class User extends Authenticatable implements MustVerifyEmail, FilamentUser
+class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasRoles, SoftDeletes, HasApiTokens;
-
-    protected $guard_name = 'sanctum';
+    use HasFactory, Notifiable, TwoFactorAuthenticatable;
 
     /**
      * The attributes that are mass assignable.
@@ -37,6 +32,8 @@ class User extends Authenticatable implements MustVerifyEmail, FilamentUser
      */
     protected $hidden = [
         'password',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
         'remember_token',
     ];
 
@@ -53,15 +50,15 @@ class User extends Authenticatable implements MustVerifyEmail, FilamentUser
         ];
     }
 
-    protected static function booted()
+    /**
+     * Get the user's initials
+     */
+    public function initials(): string
     {
-        static::created(function ($user) {
-            $user->assignRole('user');
-        });
-    }
-
-    public function canAccessPanel(Panel $panel): bool
-    {
-        return true;
+        return Str::of($this->name)
+            ->explode(' ')
+            ->take(2)
+            ->map(fn ($word) => Str::substr($word, 0, 1))
+            ->implode('');
     }
 }
