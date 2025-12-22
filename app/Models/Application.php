@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
@@ -19,6 +20,7 @@ class Application extends Model
      */
     protected $fillable = [
         'name',
+        'ministry_id',
         'description',
         'category',
         'average_daily_users',
@@ -48,6 +50,11 @@ class Application extends Model
             'end_of_life' => 'date',
             'disposition_deadline' => 'date',
         ];
+    }
+
+    public function ministry(): BelongsTo
+    {
+        return $this->belongsTo(Ministry::class);
     }
 
     public function applicationUsers(): BelongsToMany

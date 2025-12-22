@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Applications\Schemas;
 
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Schema;
 
@@ -15,6 +16,9 @@ class ApplicationForm
             ->columns(3)
             ->components([
                 TextInput::make('name')
+                    ->required(),
+                Select::make('ministry_id')
+                    ->relationship('ministry', 'name')
                     ->required(),
                 Textarea::make('description')
                     ->columnSpanFull(),

@@ -16,6 +16,9 @@ class ApplicationsTable
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
+                TextColumn::make('ministry.name')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('category')
                     ->searchable(),
                 TextColumn::make('average_daily_users')
