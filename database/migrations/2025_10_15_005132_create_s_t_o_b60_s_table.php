@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('title', 400);
             $table->text('description')->nullable();
             $table->integer('rate')->nullable();
-            $table->foreignId('vendor_id');
+            $table->foreignId('vendor_id')->constrained('vendors');
             $table->timestamps();
         });
 

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->date('release')->nullable();
             $table->date('end_of_life')->nullable();
             $table->text('description')->nullable();
-            $table->foreignId('application_id');
+            $table->foreignId('application_id')->constrained('applications');
             $table->timestamps();
         });
 

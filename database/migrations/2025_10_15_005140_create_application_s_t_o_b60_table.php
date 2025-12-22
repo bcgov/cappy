@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::disableForeignKeyConstraints();
 
         Schema::create('application_s_t_o_b60', function (Blueprint $table) {
-            $table->foreignId('application_id');
-            $table->foreignId('s_t_o_b60_id');
+            $table->foreignId('application_id')->constrained('applications');
+            $table->foreignId('s_t_o_b60_id')->constrained('s_t_o_b60_s');
         });
 
         Schema::enableForeignKeyConstraints();
