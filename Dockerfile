@@ -60,7 +60,7 @@ RUN chown -R www-data:www-data /var/www/storage \
 
 # Set correct permissions for storage, database and logs
 RUN chown -R www-data:www-data /var/www/bootstrap/cache /var/www/database \
-    && chmod -R 775 /var/www/bootstrap/cache /var/www/database
+    && chmod -R 777 /var/www/bootstrap/cache /var/www/database
 
 # Copy custom Apache configuration
 COPY ports.conf /etc/apache2/ports.conf
