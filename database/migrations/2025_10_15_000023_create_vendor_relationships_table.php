@@ -13,9 +13,6 @@ return new class extends Migration
     {
         Schema::create('vendor_relationships', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('vendor_id');
-            $table->unsignedBigInteger('application_id');
-            $table->unsignedBigInteger('contract_id');
             $table->text('description')->nullable();
             $table->timestamps();
         });

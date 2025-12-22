@@ -13,8 +13,6 @@ return new class extends Migration
     {
         Schema::create('vendor_supports', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('application_id');
-            $table->unsignedBigInteger('STOB60_id');
             $table->text('description')->nullable();
             $table->timestamps();
         });

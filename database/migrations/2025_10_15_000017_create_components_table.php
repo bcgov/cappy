@@ -13,8 +13,6 @@ return new class extends Migration
     {
         Schema::create('components', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('application_id');
-            $table->unsignedBigInteger('component_of_id');
             $table->text('description')->nullable();
             $table->timestamps();
         });

@@ -17,7 +17,6 @@ return new class extends Migration
             $table->date('release')->nullable();
             $table->date('end_of_life')->nullable();
             $table->text('description')->nullable();
-            $table->unsignedBigInteger('application_id');
             $table->timestamps();
         });
     }
