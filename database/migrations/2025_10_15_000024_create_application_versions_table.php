@@ -11,19 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::disableForeignKeyConstraints();
-
         Schema::create('application_versions', function (Blueprint $table) {
             $table->id();
             $table->string('name', 400);
             $table->date('release')->nullable();
             $table->date('end_of_life')->nullable();
             $table->text('description')->nullable();
-            $table->foreignId('application_id')->constrained('applications');
+            $table->unsignedBigInteger('application_id');
             $table->timestamps();
         });
-
-        Schema::enableForeignKeyConstraints();
     }
 
     /**

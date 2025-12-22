@@ -11,17 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::disableForeignKeyConstraints();
-
         Schema::create('vendor_supports', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('application_id')->constrained();
-            $table->foreignId('STOB60_id')->constrained('s_t_o_b60_s');
+            $table->unsignedBigInteger('application_id');
+            $table->unsignedBigInteger('STOB60_id');
             $table->text('description')->nullable();
             $table->timestamps();
         });
-
-        Schema::enableForeignKeyConstraints();
     }
 
     /**

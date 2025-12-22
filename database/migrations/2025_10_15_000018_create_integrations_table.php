@@ -11,12 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::disableForeignKeyConstraints();
-
         Schema::create('integrations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('application_id')->constrained();
-            $table->foreignId('integrates_with_id')->constrained('applications');
+            $table->unsignedBigInteger('application_id');
+            $table->unsignedBigInteger('integrates_with_id');
             $table->text('description')->nullable();
             $table->string('protocol')->nullable();
             $table->enum('direction', ["sync","inbound","outbound"]);
@@ -24,8 +22,6 @@ return new class extends Migration
             $table->text('security')->nullable();
             $table->timestamps();
         });
-
-        Schema::enableForeignKeyConstraints();
     }
 
     /**

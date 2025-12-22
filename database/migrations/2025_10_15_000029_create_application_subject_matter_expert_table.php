@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('application_subject_matter_expert', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('application_id')->constrained();
-            $table->foreignId('subject_matter_expert_id')->constrained('subject_matter_experts');
+            $table->unsignedBigInteger('application_id');
+            $table->unsignedBigInteger('subject_matter_expert_id');
             $table->text('description')->nullable();
             $table->timestamps();
         });
