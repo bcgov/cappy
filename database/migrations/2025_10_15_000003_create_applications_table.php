@@ -14,12 +14,12 @@ return new class extends Migration
         Schema::create('applications', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('ministry');
+            $table->foreignId('ministry_id')->nullable()->constrained('ministries')->nullOnDelete();
             $table->string('division')->nullable();
-            $table->string('business_owner_name');
-            $table->string('business_owner_email');
-            $table->string('technical_contact_name');
-            $table->string('technical_contact_email');
+            $table->string('business_owner_name')->nullable();
+            $table->string('business_owner_email')->nullable();
+            $table->string('technical_contact_name')->nullable();
+            $table->string('technical_contact_email')->nullable();
             $table->text('description')->nullable();
             $table->string('status')->default('active');
             $table->string('hosting_type')->nullable();
