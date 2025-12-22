@@ -29,7 +29,7 @@ return new class extends Migration
             $table->string('repository_url')->nullable();
             $table->date('go_live_date')->nullable();
             $table->date('end_of_life_date')->nullable();
-            $table->enum('category', ["business","support","data","network","hosting","security","other"]);
+            $table->enum('category', ["business","support","data","network","hosting","security","other"])->default("business");
             $table->integer('average_daily_users')->nullable();
             $table->integer('annual_cost')->nullable();
             $table->string('cost_function', 400)->nullable();
