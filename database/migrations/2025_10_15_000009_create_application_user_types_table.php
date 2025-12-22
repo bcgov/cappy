@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('name', 400);
             $table->string('description', 1000)->nullable();
-            $table->unsignedBigInteger('business_area_id');
             $table->timestamps();
         });
     }
