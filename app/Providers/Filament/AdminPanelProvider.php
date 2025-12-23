@@ -21,28 +21,27 @@ use Rupadana\ApiService\ApiServicePlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
-    public function panel(Panel $panel): Panel
-    {
-        return $panel
-            ->default()
-            ->id('admin')
-            ->path('admin')
-            ->registration(Register::class)
-            ->emailVerification()
-            ->profile(EditProfile::class)
-            ->passwordReset()
-            ->login()
-            ->brandLogo(fn() => view('filament.admin.logo'))
-            ->brandName('Cappy')
-            ->colors([
-                'primary' => Color::Teal,
-            ])
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
-            ->pages([
-                //
-            ])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
+            public function panel(Panel $panel): Panel
+            {
+                return $panel
+                    ->default()
+                    ->id('admin')
+                    ->path('admin')
+                    ->registration(Register::class)
+                    ->emailVerification()
+                    ->profile(EditProfile::class)
+                    ->passwordReset()
+                    ->login()
+                    ->brandLogo(fn () => view('filament.admin.logo'))
+                    ->brandName('Cappy')
+                    ->colors([
+                        'primary' => Color::Teal,
+                    ])
+                    ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
+                    ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
+                    ->pages([
+                        //
+                    ])            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
                 //
             ])
