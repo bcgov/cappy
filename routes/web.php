@@ -16,6 +16,17 @@ Route::get('/debug-role-check', [DebugController::class, 'checkRole'])->middlewa
 
 Route::get('/debug-session', function() {
     $user = auth()->user();
+
+    // Check if sessions table exists
+    $sessionTableExists = false;
+    $sessionCount = null;
+    try {
+        $sessionCount = \DB::table('sessions')->count();
+        $sessionTableExists = true;
+    } catch (\Exception $e) {
+        $sessionTableExists = false;
+    }
+
     return response()->json([
         'authenticated' => auth()->check(),
         'user' => $user ? [
@@ -33,6 +44,10 @@ Route::get('/debug-session', function() {
             'domain' => config('session.domain'),
             'secure' => config('session.secure'),
             'same_site' => config('session.same_site'),
+        ],
+        'database_check' => [
+            'sessions_table_exists' => $sessionTableExists,
+            'sessions_count' => $sessionCount,
         ],
     ]);
 })->middleware('web');
