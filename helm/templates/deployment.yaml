@@ -77,6 +77,36 @@ spec:
                 secretKeyRef:
                   name: cappy-secrets
                   key: MAIL_PORT
+            - name: SESSION_DRIVER
+              valueFrom:
+                secretKeyRef:
+                  name: cappy-secrets
+                  key: SESSION_DRIVER
+                  optional: true
+            - name: SESSION_LIFETIME
+              valueFrom:
+                secretKeyRef:
+                  name: cappy-secrets
+                  key: SESSION_LIFETIME
+                  optional: true
+            - name: SESSION_DOMAIN
+              valueFrom:
+                secretKeyRef:
+                  name: cappy-secrets
+                  key: SESSION_DOMAIN
+                  optional: true
+            - name: SESSION_SECURE_COOKIE
+              valueFrom:
+                secretKeyRef:
+                  name: cappy-secrets
+                  key: SESSION_SECURE_COOKIE
+                  optional: true
+            - name: SESSION_SAME_SITE
+              valueFrom:
+                secretKeyRef:
+                  name: cappy-secrets
+                  key: SESSION_SAME_SITE
+                  optional: true
           resources:
             limits:
               cpu: {{ .Values.resources.limits.cpu }}
