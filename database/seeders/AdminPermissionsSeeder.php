@@ -11,6 +11,7 @@ class AdminPermissionsSeeder extends Seeder
     public function run()
     {
         $permissions = [
+            'view-admin',
             'ViewAny:Application',
             'View:Application',
             'Create:Application',
@@ -19,11 +20,12 @@ class AdminPermissionsSeeder extends Seeder
         ];
 
         foreach ($permissions as $perm) {
-            Permission::firstOrCreate(['name' => $perm, 'guard_name' => 'sanctum']);
+            Permission::firstOrCreate(['name' => $perm, 'guard_name' => 'web']);
         }
 
         $adminRole = Role::firstOrCreate([
             'name' => 'admin',
+            'guard_name' => 'web'
         ]);
 
         $adminRole->syncPermissions($permissions);
