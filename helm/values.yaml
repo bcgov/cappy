@@ -7,6 +7,10 @@ image:
   pullPolicy: Always
   tag: ""
 
+application:
+  env: production
+  debug: false
+
 resources:
   requests:
     cpu: "390m"
