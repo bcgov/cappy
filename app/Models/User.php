@@ -64,6 +64,7 @@ class User extends Authenticatable
 
     public function canAccessPanel(\Filament\Panel $panel): bool
     {
+        dd($this->hasRole('admin'));
         return $this->hasRole('admin');
     }
 }
