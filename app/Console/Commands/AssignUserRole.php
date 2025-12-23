@@ -40,6 +40,14 @@ class AssignUserRole extends Command
 
         // Assign roles to the user, overwriting existing roles
         $user->syncRoles($roles);
+
+        // Verify email if not already verified
+        if (is_null($user->email_verified_at)) {
+            $user->email_verified_at = now();
+            $user->save();
+            $this->info('Email verified for user.');
+        }
+
         $this->info('Roles assigned successfully!');
     }
 }
