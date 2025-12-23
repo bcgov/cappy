@@ -22,11 +22,11 @@ class DatabaseSeeder extends Seeder
             BusinessAreaSeeder::class,
             STOB50Seeder::class,      
             VendorSeeder::class,
+            MinistrySeeder::class,
+            STOB50Seeder::class,
+            VendorSeeder::class,
         ]);
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+      
 
 
     }
