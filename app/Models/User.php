@@ -62,5 +62,13 @@ class User extends Authenticatable
             ->implode('');
     }
 
+    /**
+     * Determine if the user can access the Filament panel
+     */
+    public function canAccessPanel(\Filament\Panel $panel): bool
+    {
+        return true;
+    }
+
 }
 
