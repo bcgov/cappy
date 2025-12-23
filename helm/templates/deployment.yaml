@@ -35,6 +35,8 @@ spec:
               value: {{ .Values.application.env | quote }}
             - name: APP_DEBUG
               value: {{ .Values.application.debug | quote }}
+            - name: LOG_CHANNEL
+              value: stderr
             - name: DB_CONNECTION
               valueFrom:
                 secretKeyRef:
