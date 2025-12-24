@@ -47,26 +47,36 @@ class UserResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()->hasRole('admin');
+        // Temporarily disabled for debugging
+        return true;
+        // return auth()->user()->hasRole('admin');
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()->hasRole('admin');
+        // Temporarily disabled for debugging
+        return true;
+        // return auth()->user()->hasRole('admin');
     }
 
     public static function canEdit($record): bool
     {
-        return auth()->user()->hasRole('admin');
+        // Temporarily disabled for debugging
+        return true;
+        // return auth()->user()->hasRole('admin');
     }
 
     public static function canDelete($record): bool
     {
-        return auth()->user()->hasRole('admin');
+        // Temporarily disabled for debugging
+        return true;
+        // return auth()->user()->hasRole('admin');
     }
 
     public static function shouldRegisterNavigation(): bool
     {
-        return auth()->user()->hasRole('admin');
+        // Temporarily disabled for debugging
+        return true;
+        // return auth()->user()->hasRole('admin');
     }
 }

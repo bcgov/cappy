@@ -14,6 +14,60 @@ Route::get('/clear-permission-cache', function() {
 
 Route::get('/debug-role-check', [DebugController::class, 'checkRole'])->middleware('web');
 
+Route::get('/debug-filament', function() {
+    $user = auth()->user();
+    $panel = \Filament\Facades\Filament::getCurrentOrDefaultPanel();
+
+    $canAccess = false;
+    $canAccessError = null;
+    try {
+        $canAccess = $user ? $user->canAccessPanel($panel) : false;
+    } catch (\Exception $e) {
+        $canAccessError = $e->getMessage();
+    }
+
+    // Test Spatie permissions
+    $hasRoleAdmin = null;
+    $hasRoleError = null;
+    $roleNames = null;
+    $permissionCacheKey = null;
+
+    if ($user) {
+        try {
+            $hasRoleAdmin = $user->hasRole('admin');
+            $roleNames = $user->getRoleNames()->toArray();
+        } catch (\Exception $e) {
+            $hasRoleError = $e->getMessage();
+        }
+
+        try {
+            $permissionCacheKey = config('permission.cache.key');
+            $cachedPermissions = \Cache::get($permissionCacheKey);
+        } catch (\Exception $e) {
+            $cachedPermissions = 'Error: ' . $e->getMessage();
+        }
+    }
+
+    return response()->json([
+        'user_authenticated' => auth()->check(),
+        'user_id' => $user?->id,
+        'user_email' => $user?->email,
+        'panel_id' => $panel->getId(),
+        'panel_path' => $panel->getPath(),
+        'can_access_panel' => $canAccess,
+        'can_access_error' => $canAccessError,
+        'email_verification_required' => method_exists($panel, 'hasEmailVerification') ? $panel->hasEmailVerification() : 'unknown',
+        'user_email_verified' => $user?->email_verified_at ? true : false,
+        'spatie_permissions' => [
+            'has_role_admin' => $hasRoleAdmin,
+            'role_names' => $roleNames,
+            'has_role_error' => $hasRoleError,
+            'cache_key' => $permissionCacheKey,
+            'cached_permissions_exist' => isset($cachedPermissions),
+        ],
+    ]);
+})->middleware('web');
+
 Route::get('/debug-session', function() {
     $user = auth()->user();
 
