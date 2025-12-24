@@ -25,3 +25,4 @@ Thumbs.db
 GEMINI.md
 CLAUDE.md
 .nvmrc
+docker-compose.override.yml

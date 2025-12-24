@@ -1,11 +1,11 @@
 services:
     laravel.test:
         build:
-            context: './vendor/laravel/sail/runtimes/8.5'
+            context: ./vendor/laravel/sail/runtimes/8.5
             dockerfile: Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP}'
-        image: 'sail-8.5/app'
+        image: sail-8.5/app
         extra_hosts:
             - 'host.docker.internal:host-gateway'
         ports:
@@ -23,16 +23,15 @@ services:
             - sail
         depends_on:
             - pgsql
-
+            - redis
     mailhog:
-        image: mailhog/mailhog:latest
+        image: 'mailhog/mailhog:latest'
         container_name: mailhog
         ports:
-            - "1025:1025"
-            - "8025:8025"
+            - '${FORWARD_MAILPIT_PORT:-1026}:1025'
+            - '${FORWARD_MAILPIT_DASHBOARD_PORT:-8025}:8025'
         networks:
             - sail
-
     pgsql:
         image: 'postgres:18-alpine'
         ports:
@@ -58,14 +57,13 @@ services:
                 - '${DB_USERNAME}'
             retries: 3
             timeout: 5s
-            
     queue-worker:
         build:
-            context: './vendor/laravel/sail/runtimes/8.5'
+            context: ./vendor/laravel/sail/runtimes/8.5
             dockerfile: Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP}'
-        image: 'sail-8.5/app'
+        image: sail-8.5/app
         extra_hosts:
             - 'host.docker.internal:host-gateway'
         environment:
@@ -79,11 +77,28 @@ services:
             - sail
         depends_on:
             - pgsql
-        command: bash -c "php artisan queue:work --sleep=3 --tries=3 --timeout=3600"
+        command: 'bash -c "php artisan queue:work --sleep=3 --tries=3 --timeout=3600"'
         restart: unless-stopped
+    redis:
+        image: 'redis:alpine'
+        ports:
+            - '${FORWARD_REDIS_PORT:-6379}:6379'
+        volumes:
+            - 'sail-redis:/data'
+        networks:
+            - sail
+        healthcheck:
+            test:
+                - CMD
+                - redis-cli
+                - ping
+            retries: 3
+            timeout: 5s
 networks:
     sail:
         driver: bridge
 volumes:
     sail-pgsql:
+        driver: local
+    sail-redis:
         driver: local
