@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use App\Models\Enums\ApplicationCategory;
 
 class Application extends Model
 {
@@ -49,6 +50,7 @@ class Application extends Model
             'end_of_support' => 'date',
             'end_of_life' => 'date',
             'disposition_deadline' => 'date',
+            'category' => ApplicationCategory::class,
         ];
     }
 

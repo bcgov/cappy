@@ -18,7 +18,7 @@
 </head>
 
 <body class="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] dark:text-[#EDEDEC] flex p-6 lg:p-8 items-center lg:justify-center min-h-screen flex-col">
-    <img src="{{ asset('images/cappy.svg') }}" alt="Cappy Logo" class="logo">
+    <img src="{{ asset('images/cappy-darkmode.svg') }}" alt="Cappy Logo" class="logo" width="400>
     <h1 class="welcome-title text-gray-900 dark:text-white">Hello and welcome to Cappy</h1>
     <p class="welcome-subtitle text-gray-700 dark:text-gray-300 mb-6">The application catalogue</p>
     <div class="m-6">
