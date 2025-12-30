@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'opencve' => [
+        'base_url' => env('OPENCVE_BASE_URL', 'https://app.opencve.io/api'),
+        'username' => env('OPENCVE_USERNAME'),
+        'password' => env('OPENCVE_PASSWORD'),
+    ],
+
 ];

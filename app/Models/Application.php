@@ -96,6 +96,12 @@ class Application extends Model
         ->withPivot('description');
     }
     
+    public function cveQueries(): BelongsToMany
+    {
+        return $this->belongsToMany(CveQuery::class, 'application_cve_query')
+            ->withPivot('description')
+            ->withTimestamps();
+    }
 
     public function dependencies(): BelongsToMany
     {
@@ -174,7 +180,7 @@ class Application extends Model
         return $this->hasMany(ApplicationVersion::class);
     }
 
-
+    
 
 
 }
