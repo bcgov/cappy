@@ -13,7 +13,7 @@
     {{-- NAVBAR mobile only --}}
     <x-nav sticky class="lg:hidden">
         <x-slot:brand>
-            <img src="{{ asset('images/cappy-dark.png') }}" alt="Cappy the Application Catalogue" class="w-8 h-8">
+            <img src="{{ asset('images/cappy-darkmode.svg') }}" alt="Cappy the Application Catalogue" class="w-8 h-8">
         </x-slot:brand>
         <x-slot:actions>
             <label for="main-drawer" class="lg:hidden me-3">
