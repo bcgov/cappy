@@ -13,7 +13,7 @@
     {{-- NAVBAR mobile only --}}
     <x-nav sticky class="lg:hidden">
         <x-slot:brand>
-            <x-app-brand />
+            <img src="{{ asset('images/cappy-dark.png') }}" alt="Cappy the Application Catalogue" class="w-8 h-8">
         </x-slot:brand>
         <x-slot:actions>
             <label for="main-drawer" class="lg:hidden me-3">
@@ -28,30 +28,27 @@
         <x-slot:sidebar drawer="main-drawer" collapsible class="bg-base-100 lg:bg-inherit">
 
             {{-- BRAND --}}
-            <x-app-brand class="px-5 pt-4" />
+            <div class="flex h-24">
+                <img src="{{ asset('images/cappy-darkmode.svg') }}" alt="Cappy the Application Catalogue" class="w-12 h-12 ml-4 mt-4">
+                <x-header title="Cappy" subtitle="The Application Catalogue" class="ml-4 mt-4"/>
+            </div>
 
             {{-- MENU --}}
             <x-menu activate-by-route>
-
                 {{-- User --}}
-                @if($user = auth()->user())
-                    <x-menu-separator />
 
-                    <x-list-item :item="$user" value="name" sub-value="email" no-separator no-hover class="-mx-2 !-my-2 rounded">
-                        <x-slot:actions>
-                            <x-button icon="o-power" class="btn-circle btn-ghost btn-xs" tooltip-left="logoff" no-wire-navigate link="/logout" />
-                        </x-slot:actions>
-                    </x-list-item>
-
-                    <x-menu-separator />
-                @endif
-
-                <x-menu-item title="Hello" icon="o-sparkles" link="/" />
+                <x-input placeholder="Search..." wire:model.live.debounce="search" clearable icon="o-magnifying-glass" />
+                <div class="text-sm font-semibold mt-4 mb-2">
+                    Application Categories
+                </div>
+                <x-menu-item title="Business" icon="o-briefcase" link="/" />
+                <x-menu-item title="Support" icon="o-user-group" link="/" />
+                <x-menu-item title="Data" icon="o-circle-stack" link="/" />
+                <x-menu-item title="Network" icon="o-wifi" link="/" />
+                <x-menu-item title="Hosting" icon="o-server-stack" link="/" />
+                <x-menu-item title="Security" icon="o-shield-check" link="/" />
+                <x-menu-item title="Other Apps" icon="o-wrench-screwdriver" link="/" />
                 
-                <x-menu-sub title="Settings" icon="o-cog-6-tooth">
-                    <x-menu-item title="Wifi" icon="o-wifi" link="####" />
-                    <x-menu-item title="Archives" icon="o-archive-box" link="####" />
-                </x-menu-sub>
             </x-menu>
         </x-slot:sidebar>
 
