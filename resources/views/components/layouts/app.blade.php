@@ -28,31 +28,28 @@
         <x-slot:sidebar drawer="main-drawer" collapsible class="bg-base-100 lg:bg-inherit">
 
             {{-- BRAND --}}
-            <x-app-brand class="px-5 pt-4" />
+            <div class="flex mb-2 h-20">
+                    <img src="{{ asset('images/cappy-darkmode.svg') }}" alt="Cappy : The Application Catalogue" class="h-12 mt-4 ml-4">
+                    <x-header title="Cappy" subtitle="The Application Catalogue" class="ml-4 mt-4" />
+            </div>
 
             {{-- MENU --}}
-            <x-menu activate-by-route>
-
-                {{-- User --}}
-                @if($user = auth()->user())
-                    <x-menu-separator />
-
-                    <x-list-item :item="$user" value="name" sub-value="email" no-separator no-hover class="-mx-2 !-my-2 rounded">
-                        <x-slot:actions>
-                            <x-button icon="o-power" class="btn-circle btn-ghost btn-xs" tooltip-left="logoff" no-wire-navigate link="/logout" />
-                        </x-slot:actions>
-                    </x-list-item>
-
-                    <x-menu-separator />
-                @endif
-
-                <x-menu-item title="Hello" icon="o-sparkles" link="/" />
-                
-                <x-menu-sub title="Settings" icon="o-cog-6-tooth">
-                    <x-menu-item title="Wifi" icon="o-wifi" link="####" />
-                    <x-menu-item title="Archives" icon="o-archive-box" link="####" />
-                </x-menu-sub>
-            </x-menu>
+                <div class="ml-4 mt-2">
+                <x-input placeholder="Search..." wire:model.live.debounce="search" icon="o-magnifying-glass" @keydown.enter="$wire.drawer = false" />
+            </div>
+            
+                <x-menu activate-by-route>
+                    <div class="mb-2 mt-4 text-center">
+                        <strong>Application Categories</strong>
+                    </div>
+                    <x-menu-item title="Business" icon="o-briefcase" link="/" />
+                    <x-menu-item title="Support"  icon="o-cpu-chip" link="/" />
+                    <x-menu-item title="Data" icon="o-circle-stack" link="/" />
+                    <x-menu-item title="Network" icon="o-wifi" link="/" />
+                    <x-menu-item title="Hosting" icon="o-server" link="/" />
+                    <x-menu-item title="Security" icon="o-shield-check" link="/" />
+                    <x-menu-item title="Other" icon="o-wrench-screwdriver" link="/" />
+                </x-menu>
         </x-slot:sidebar>
 
         {{-- The `$slot` goes here --}}
