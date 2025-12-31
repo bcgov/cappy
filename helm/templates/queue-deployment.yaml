@@ -22,6 +22,16 @@ spec:
             - secretRef:
                 name: cappy-secrets
           env:
+            - name: APP_ENV
+              value: {{ .Values.application.env | quote }}
+            - name: APP_DEBUG
+              value: {{ .Values.application.debug | quote }}
+            - name: APP_URL
+              value: {{ .Values.application.url | quote }}
+            - name: ASSET_URL
+              value: {{ .Values.application.url | quote }}
+            - name: LOG_CHANNEL
+              value: stderr
             - name: DB_CONNECTION
               valueFrom:
                 secretKeyRef:

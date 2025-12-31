@@ -49,14 +49,15 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copy existing application directory contents
 COPY . /var/www
 
+# Install Composer dependencies FIRST (so vendor files exist for Tailwind CSS scan)
+RUN COMPOSER_MEMORY_LIMIT=-1 composer install --no-dev --optimize-autoloader --no-scripts --no-interaction --prefer-dist --ignore-platform-reqs
+
 # Install Node.js dependencies if package.json exists
 RUN if [ -f package.json ]; then npm install; fi
 
 # Build frontend assets using Vite (required for Filament Monaco etc.)
+# This MUST run after composer install so Tailwind can scan vendor files
 RUN npm run build
-
-# Install Composer dependencies
-RUN COMPOSER_MEMORY_LIMIT=-1 composer install --no-dev --optimize-autoloader --no-scripts --no-interaction --prefer-dist --ignore-platform-reqs
 
 # Create the storage directory if it doesn't exist as part of the image
 RUN mkdir -p /var/www/storage
