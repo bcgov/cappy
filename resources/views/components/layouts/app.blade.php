@@ -7,6 +7,8 @@
     <title>{{ isset($title) ? $title.' - '.config('app.name') : config('app.name') }}</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @filamentStyles
+    @filamentScripts
 </head>
 <body class="min-h-screen font-sans antialiased bg-base-200">
 

@@ -18,6 +18,9 @@
     <x-card title="Featured Application" shadow>
         This will display a randomly selected application with a screenshot and a short description.
     </x-card>
+    <div class="col-span-2">
+        @livewire('list-applications')
+    </div>
 </div>
     <!-- FILTER DRAWER -->
     

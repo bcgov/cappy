@@ -26,6 +26,7 @@ new class extends Component {
 
     <!-- TABLE  -->
     <x-card title="Latest Updates" shadow>
+    
         This is where the 4 most recently edited applications will be displayed.
     </x-card>
     <x-card title="Latest CVEs" shadow>
