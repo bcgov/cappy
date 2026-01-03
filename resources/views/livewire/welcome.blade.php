@@ -22,6 +22,6 @@
         @livewire('list-applications')
     </div>
 </div>
-    <!-- FILTER DRAWER -->
+   
     
 </div>

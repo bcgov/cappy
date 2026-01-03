@@ -44,12 +44,12 @@
                     <div class="mb-2 mt-4 text-center">
                         <strong>Application Categories</strong>
                     </div>
-                    <x-menu-item title="Business" icon="o-briefcase" link="/" />
-                    <x-menu-item title="Support"  icon="o-cpu-chip" link="/" />
-                    <x-menu-item title="Data" icon="o-circle-stack" link="/" />
-                    <x-menu-item title="Network" icon="o-wifi" link="/" />
-                    <x-menu-item title="Hosting" icon="o-server" link="/" />
-                    <x-menu-item title="Security" icon="o-shield-check" link="/" />
+                    <x-menu-item title="Business" icon="o-briefcase" link="/applications/category/business" />
+                    <x-menu-item title="Support"  icon="o-cpu-chip" link="/applications/category/support" />
+                    <x-menu-item title="Data" icon="o-circle-stack" link="/applications/category/data" />
+                    <x-menu-item title="Network" icon="o-wifi" link="/applications/category/network" />
+                    <x-menu-item title="Hosting" icon="o-server" link="/applications/category/hosting" />
+                    <x-menu-item title="Security" icon="o-shield-check" link="/applications/category/security" />
                     <x-menu-item title="Other" icon="o-wrench-screwdriver" link="/" />
                 </x-menu>
         </x-slot:sidebar>
